@@ -1,12 +1,15 @@
-function Get-DellBiosPasswordRequirement {
+function Get-DellBiosSetupPasswordState {
     [CmdLetBinding()]
     Param()
-    $Query = 'Select * from DCIM_BiosEnumeration Where AttributeName = "Admin Setup Lockout"'
-    Switch ((Get-WmiObject -Namespace root\dcim\sysman -Query $Query).CurrentValue) {
-        1 {$False}
-        2 {$True}
-        Default {}
-    }
+    $Query = 'Select * from DCIM_BiosPassword Where AttributeName = "AdminPwd"'
+    (Get-WmiObject -Namespace root\dcim\sysman -Query $Query).IsSet
 }
 
-Get-DellBiosPasswordRequirement
+function Get-DellBiosBootPasswordState {
+    [CmdLetBinding()]
+    Param()
+    $Query = 'Select * from DCIM_BiosPassword Where AttributeName = "SystemPwd"'
+    (Get-WmiObject -Namespace root\dcim\sysman -Query $Query).IsSet
+}
+
+Get-DellBiosSetupPasswordState

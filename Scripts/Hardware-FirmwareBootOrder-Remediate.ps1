@@ -1,6 +1,6 @@
 ﻿[CmdLetBinding()]
 Param($Run)
-$BiosPassword = 'f1sh'
+$BiosPassword = 'PasswordHere'
 
 function Get-CurrentBootMode {
     [CmdLetBinding()]
