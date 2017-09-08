@@ -136,7 +136,7 @@ function Set-UEFIBootOrder {
             }
         }
         Write-Verbose 'Setting new boot order'
-        $Result = (Get-BootConfigObject -BootConfigType UEFI).changebootorder($BootOrderArray, $BiosPassword) 
+        $Result = (Get-BootConfigObject -BootConfigType UEFI).changebootorder($BootOrderArray, $BiosPassword)
         If ($Result.ReturnValue -eq 0) {
             Write-Verbose 'Succesfully set new boot order'
             Get-UEFIBootOrder
