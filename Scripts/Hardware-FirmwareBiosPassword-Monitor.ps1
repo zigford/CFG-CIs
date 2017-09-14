@@ -18,7 +18,7 @@ function Test-DellBiosSetupPassword {
     Param($BiosPassword)
 
     Try {
-        Set-DellBiosSetupPassword -NewPassword $BiosPassword -OldPassword $BiosPassword
+        Set-DellBiosSetupPassword -NewPassword $BiosPassword -OldPassword $BiosPassword -ErrorAction Stop
         $True
     } Catch {
         $False
