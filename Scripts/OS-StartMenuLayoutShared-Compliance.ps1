@@ -1,22 +1,39 @@
-﻿$Global:logFile = "$($env:Systemroot)\AppLog\OS-StartMenuLayoutShared-Compliance.log"
+﻿[CmdLetBinding()]
+Param($DefaultParam)
+
+$Global:logFile = "$($env:windir)\AppLog\$($MyInvocation.MyCommand.Name).log"
+$ErrorActionPreference = 'Stop'
 
 function logMsg {
-    [CmdLetBinding()]
-    Param(
-        [Parameter(
-            ValueFromPipeline=$True
-        )]$Message,$logFile=$Global:logFile
-    )
-    "$(Get-Date): $Message" | Out-File -FilePath $logFile -Append
+  [CmdLetBinding()]
+  Param(
+      [Parameter(
+          ValueFromPipeline=$True
+      )]$Message,
+      $Level=0,
+      $logFile=$Global:logFile
+  )
+  "$(Get-Date): $Message" | Out-File -FilePath $logFile -Append
+  Switch ($Level){
+    1 {Write-Error -Message $Message}
+    2 {Write-Warning -Message $Message}
+    Default {Write-Verbose -Message $Message}
+  }
 }
 
-logMsg "Importing Installed XML"
 $InstalledXMLPath = "$($env:Systemdrive)\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
-# We import the XML and cast it as an XML type so that it is easy to compare as an object
-$InstalledXML = [xml](Get-Content -Path $InstalledXMLPath -Raw)
-# Here we have the new XML directly embedded as a here doc, and again, cast as an XML object
-logMsg "Casting new XML"
-$NewXML = [xml]@"
+logMsg "Reading installed Start Layout"
+Try {
+  $InstalledXML = (Get-Content -Path $InstalledXMLPath)
+  logMsg "Succesfully imported installed Start Layout"
+} Catch {
+  logMsg "Failed to import installed Start Layout"
+  Write-Error "Unable to read XML file $InstalledXMLPath"
+}
+
+logMsg "Instantiating Here-Doc for XML to compare"
+Try {
+$NewXML = @"
 <LayoutModificationTemplate xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" Version="1" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification">
 <LayoutOptions StartTileGroupCellWidth="6" />
 <DefaultLayoutOverride>
@@ -41,15 +58,53 @@ $NewXML = [xml]@"
 </DefaultLayoutOverride>
 </LayoutModificationTemplate>
 "@
+  logMsg "Succesfully instantiated Here-Doc to string"
+} Catch {
+  logMsg "Failed to instantiate Here-Doc"
+  Write-Error "Unable to instantiate Here-Doc"
+}
+# Lets save it to disk so we can import it as an object
+$NewItemParams = @{
+  Path = $env:temp
+  Name = "$(Get-Random).xml"
+  Value = $NewXML
+}
+logMsg ("Creating Temp File {0} for XML" -f $NewItemParams.Name)
+Try {
+  $RandomFile = New-Item @NewItemParams -ItemType File
+  logMsg "Succesfully created temp XML file $($NewItemParams.Name)"
+} catch {
+  logMsg "Failed to create temp XML file $($NewItemParams.Name)" 1
+}
+logMsg "Saving XML to disk"
+Try {
+  #$NewXML.Save($RandomFile.FullName)
+  $NewXML | Out-File -FilePath $RandomFile.FullName
+  logMsg "Sucesfully saved XML"
+} catch {
+  logMsg "Failed to save XML" 1
+}
+logMsg "Importing XML with Get-Content to get it as an object of strings"
+Try {
+  $NewXMLContent = Get-Content -Path $RandomFile.FullName
+  logMsg "Succesfully read temp file $($RandomFile.FullName)"
+  # Can Delete Temp file now
+} catch {
+  logMsg "Failed to read saved XML" 1
+}
 
-logMsg "Comparing XML's"
-If (Compare-Object -ReferenceObject $InstalledXML -DifferenceObject $NewXML) {
-  logMsg "Installed Start-Layout is not compliant, returning False"
-  # If Compare object returns any data, that means there is a difference between the XML
-  # data and we will return false, as the Source XML does not match, the installed and is not
-  # compliant.
+Try {
+  $RandomFile | Remove-Item -Force
+  logMsg "Succesfully removed temp file $($RandomFile.FullName)"
+} catch {
+  logMsg "Could not remove temp file" 2
+}
+
+If (Compare-Object -ReferenceObject $InstalledXML -DifferenceObject $NewXMLContent) {
+  # there is a difference
+  logMsg "Installed start layout does not match Here-Doc. Returning False"
   return $False
 } else {
-  logMsg "Installed Start-Layout matches CI, returning True"
+  logMsg "Installed start layout matches Here-Doc. Returning True"
   return $True
 }
