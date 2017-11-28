@@ -317,3 +317,10 @@ if ($?){
 } else {
   logMsg "Failed to apply default app associations" 1
 }
+logMsg "Deleting temp XML file"
+Try {
+    $RandomFile | Remove-Item -Force
+    logMsg "Succesfully removed temp file $($RandomFile.FullName)"
+} catch {
+    logMsg "Couldn't removed temp file $($RandomFile.FullName)" 2
+}
