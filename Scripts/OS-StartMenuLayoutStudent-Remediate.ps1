@@ -1,7 +1,7 @@
 ﻿[CmdLetBinding()]
 Param($DefaultParam)
 
-$Global:logFile = "$($env:windir)\AppLog\$($MyInvocation.MyCommand.Name).log"
+$Global:logFile = "$($env:windir)\AppLog\OS-StartMenuLayoutStudent-Remediate.log"
 $ErrorActionPreference = 'Stop'
 
 function logMsg {
