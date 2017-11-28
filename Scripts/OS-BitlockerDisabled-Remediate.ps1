@@ -12,7 +12,7 @@ function logMsg {
             'Information',
             'Error'
         )]$Type='Information',
-        $Source='ComplianceEncryptionRemediation'
+        $Source='ComplianceDecryptionRemediation'
     )
     Begin{
         if(![System.Diagnostics.EventLog]::SourceExists($Source)) {
