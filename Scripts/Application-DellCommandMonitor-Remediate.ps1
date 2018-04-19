@@ -141,13 +141,26 @@ If (-Not $ARPEntry) {
     Write-Error "Unable to find Dell Command | Monitor ARP Entry" -ErrorAction Stop
 }
 
+function Get-MSISourceList {
+    Param($ProductName)
+        1..((Get-MSINewSourceListInt -ProductName $ProductName)-1) | ForEach-Object {
+            (Get-ItemProperty "HKLM:\Software\Classes\Installer\Products\$(Get-MSICompressedProductCode -ProductName $ProductName)\SourceList\Net" -Name $_).$_
+        }
+}
+
 # After that, we know it's installed. Lets repair the MSI
 logMsg "Setting MSI to suppress reboots"
 Set-MSIRebootSuppress -MSICode $ARPEntry.PSChildName
 # Upate MSI Source
-If (Test-Path $env:\WinDir\Resources\USC\DCM) {
-    logMsg "Adding new MSI source for DCM...."
-    Add-MSISource -ProductName 'Dell Command | Monitor' -SourcePath "$env:WinDir\Resources\USC\DCM\"
+$NewMSISource = "$env:WinDir\Resources\USC\DCM\"
+If (Test-Path $NewMSISource) {
+    # Should check if it is already added.
+    If ($NewMSISource -in (Get-MSISourceList -ProductName 'Dell Command | Monitor')) {
+        logMsg "Source has been added previously."
+    } else {
+        logMsg "Adding new MSI source for DCM...."
+        Add-MSISource -ProductName 'Dell Command | Monitor' -SourcePath "$env:WinDir\Resources\USC\DCM\"
+    }
 }
 
 logMsg "Starting repair process. Command:"
