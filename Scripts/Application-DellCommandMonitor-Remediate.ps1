@@ -102,7 +102,7 @@ function Set-MSIRebootSuppress {
     $MSI = $null
     [System.GC]::Collect()
 }
-
+<#
 function Get-MSICompressedProductCode {
     Param($ProductName)
     
@@ -132,7 +132,7 @@ function Add-MSISource {
     $NewInt = Get-MSINewSourceListInt -ProductName $ProductName
     New-ItemProperty -Path "HKLM:\Software\Classes\Installer\Products\$(Get-MSICompressedProductCode -ProductName $ProductName)\SourceList\Net" -Name $NewInt -PropertyType 'ExpandString' -Value $SourcePath
 }
-
+#>
 # Get ARP Entry
 $ARPEntry = get-childitem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ | ?{(Get-ItemProperty -Path $_.PSPath -Name DisplayName -EA SilentlyContinue).DisplayName -match 'Dell Command | Monitor'}
 If (-Not $ARPEntry) {
@@ -140,7 +140,7 @@ If (-Not $ARPEntry) {
     logMsg "Unable to find Dell Command | Monitor ARP Entry. Exiting with an error"
     Write-Error "Unable to find Dell Command | Monitor ARP Entry" -ErrorAction Stop
 }
-
+<#
 function Get-MSISourceList {
     Param($ProductName)
         1..((Get-MSINewSourceListInt -ProductName $ProductName)-1) | ForEach-Object {
@@ -162,8 +162,11 @@ If (Test-Path $NewMSISource) {
         Add-MSISource -ProductName 'Dell Command | Monitor' -SourcePath "$env:WinDir\Resources\USC\DCM\"
     }
 }
-
-logMsg "Starting repair process. Command:"
-logMsg "msiexec.exe /fam $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS"
-$Result = Start-Process -FilePath msiexec.exe -ArgumentList "/fam $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS" -Wait -PassThru
+#>
+# Repairs of Dell Command | Monitor are fraught with issues. Best to just uninstall it.
+#
+logMsg "Removing Dell Command | Monitor"
+logMsg "msiexec.exe /x $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS"
+#$Result = Start-Process -FilePath msiexec.exe -ArgumentList "/fam $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS" -Wait -PassThru
+$Result = Start-Process -FilePath msiexec.exe -ArgumentList "/x $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS" -Wait -PassThru
 logMsg "ExitCode: $($Result.ExitCode)"
