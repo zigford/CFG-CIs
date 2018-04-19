@@ -103,12 +103,34 @@ function Set-MSIRebootSuppress {
     [System.GC]::Collect()
 }
 
+function Get-MSICompressedProductCode {
+    Param($ProductName)
+    
+    $RegPath = $null
+    $RegPath = Get-ChildItem HKLM:\Software\Classes\Installer\Products | Where-Object {
+        (Get-ItemProperty -Path $_.PSPath).ProductName -eq $ProductName
+    }
+
+    return $RegPath.PSChildName
+}
+
+function Get-MSINewSourceListInt {
+    Param($ProductName)
+    $i = 0
+    Do {
+        $i++
+    } Until ((Get-ItemProperty "HKLM:\Software\Classes\Installer\Products\$(Get-MSICompressedProductCode -ProductName $ProductName)\SourceList\Net" -Name $i -EA SilentlyContinue) -eq $null)
+
+    return $i
+}
+
 function Add-MSISource {
     [CmdLetBinding()]
-    Param([Parameter(Mandatory=$True)]$ProductName)
-
-
-
+    Param([Parameter(Mandatory=$True)]$ProductName,$SourcePath)
+    
+    # enum existing msi sources
+    $NewInt = Get-MSINewSourceListInt -ProductName $ProductName
+    New-ItemProperty -Path "HKLM:\Software\Classes\Installer\Products\$(Get-MSICompressedProductCode -ProductName $ProductName)\SourceList\Net" -Name $NewInt -PropertyType 'ExpandString' -Value $SourcePath
 }
 
 # Get ARP Entry
@@ -123,6 +145,10 @@ If (-Not $ARPEntry) {
 logMsg "Setting MSI to suppress reboots"
 Set-MSIRebootSuppress -MSICode $ARPEntry.PSChildName
 # Upate MSI Source
+If (Test-Path $env:\WinDir\Resources\USC\DCM) {
+    logMsg "Adding new MSI source for DCM...."
+    Add-MSISource -ProductName 'Dell Command | Monitor' -SourcePath "$env:WinDir\Resources\USC\DCM\"
+}
 
 logMsg "Starting repair process. Command:"
 logMsg "msiexec.exe /fam $($ARPEntry.PSChildName) /qn REBOOT=REALLYSUPPRESS"
