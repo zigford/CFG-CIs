@@ -134,7 +134,7 @@ function Add-MSISource {
 }
 #>
 # Get ARP Entry
-$ARPEntry = get-childitem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ | ?{(Get-ItemProperty -Path $_.PSPath -Name DisplayName -EA SilentlyContinue).DisplayName -match 'Dell Command | Monitor'}
+$ARPEntry = get-childitem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ | ?{(Get-ItemProperty -Path $_.PSPath -Name DisplayName -EA SilentlyContinue).DisplayName -match 'Dell Command \| Monitor'}
 If (-Not $ARPEntry) {
     #  If the Add remove programs entry doesn't exist. This kinda can't happen.
     logMsg "Unable to find Dell Command | Monitor ARP Entry. Exiting with an error"

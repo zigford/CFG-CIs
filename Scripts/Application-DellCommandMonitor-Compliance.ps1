@@ -10,7 +10,7 @@ function logMsg {
     "$(Get-Date): $Message" | Out-File -FilePath $logFile -Append
 }
 
-$ARPEntry = get-childitem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ | ?{(Get-ItemProperty -Path $_.PSPath -Name DisplayName -EA SilentlyContinue).DisplayName -match 'Dell Command | Monitor'}
+$ARPEntry = get-childitem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ | ?{(Get-ItemProperty -Path $_.PSPath -Name DisplayName -EA SilentlyContinue).DisplayName -match 'Dell Command \| Monitor'}
 If (-Not $ARPEntry) {
     #  If the Add remove programs entry doesn't exist. The app state is compliant
     return $True
