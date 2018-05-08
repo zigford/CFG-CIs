@@ -464,7 +464,7 @@ function Set-UEFIBootOrder {
     }
 }
 
-Global:logFile = "$env:WinDir\AppLog\HardwareFirmware-WakeNonSharedDesktops-Compliance.log"
+$Global:logFile = "$env:WinDir\AppLog\HardwareFirmware-WakeNonSharedDesktops-Compliance.log"
 
 function logMsg {
     [CmdLetBinding()]
