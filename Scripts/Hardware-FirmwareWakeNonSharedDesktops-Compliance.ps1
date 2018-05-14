@@ -463,19 +463,85 @@ function Set-UEFIBootOrder {
     }
 }
 
+$Global:logFile = "$env:WinDir\AppLog\HardwareFirmware-WakeNonSharedDesktops-Compliance.log"
+
+function logMsg {
+    [CmdLetBinding()]
+    Param(
+        [Parameter(
+            ValueFromPipeline=$True
+        )]$Message,$logFile=$Global:logFile
+    )
+    "$(Get-Date): $Message" | Out-File -FilePath $logFile -Append
+}
+
 $Compliant = $True
-#Check if bios is set to wake up on Tues and Fri
-'Tuesday','Friday'| ForEach-Object {
+$DesktopAutoOnHour = 1
+$DesktopAutoOn = 'Select days'
+$DesktopDaysEnable = 'Tuesday','Friday'
+$DesktopDaysDisable = 'Sunday','Monday','Wednesday','Thursday','Saturday'
+
+$LaptopAutoOnHour = 0
+$LaptopAutoOn = 'Disable'
+$LaptopDaysDisable = 'Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
+$LaptopDaysEnable = $null
+
+function Get-HardwareType {
+    Try {
+        $CompSys = Get-CimInstance -ClassName Win32_ComputerSystem -Property PCSystemType | Select-Object -ExpandProperty PCSystemType
+        Switch ($CompSys) {
+            1 {'Desktop'}
+            2 {'Laptop'}
+            3 {'Workstation'}
+            4 {'Enterprise Server'}
+            5 {'SOHO Server'}
+            6 {'Applicance PC'}
+            7 {'Performance Server'}
+            Default {'Unspecified'}
+        }
+    } Catch {
+        throw 'Cant return ciminstance'
+    }
+}
+
+If ((Get-HardwareType) -ne 'Laptop') {
+    logMsg "Setting desktop profile for bios power on"
+    $DaysDisable = $DesktopDaysDisable
+    $DaysEnable = $DesktopDaysEnable
+    $AutoOn = $DesktopAutoOn
+    $AutoOnHour = $DesktopAutoOnHour
+} else {
+    logMsg "Setting laptop profile for bios power on"
+    $DaysDisable = $DesktopDaysDisable
+    $DaysDisable = $LaptopDaysDisable
+    $DaysEnable = $LaptopDaysEnable
+    $AutoOn = $LaptopAutoOn
+    $AutoOnHour = $LaptopAutoOnHour
+}
+
+$DaysEnable | ForEach-Object {
     $DaySetting = Get-BiosAttribute -AttributeName "Auto on $_"
     If ($DaySetting.CurrentSettingDescription -eq 'Disable' ) {
+        logMsg "$_ not set to enabled. Marking non-compliant"
         $Compliant = $False 
     }
 }
-If ((Get-BiosAttribute -AttributeName 'Auto On').CurrentSettingDescription -ne 'Select days') {
+
+$DaysDisable | ForEach-Object {
+    $DaySetting = Get-BiosAttribute -AttributeName "Auto on $_"
+    If ($DaySettin.CurrentSettingDescription -eq 'Enable') {
+        logMsg "$_ not set to disabled. Marking non-compliant"
+        $Compliant = $False
+    }
+}
+
+If ((Get-BiosAttribute -AttributeName 'Auto On').CurrentSettingDescription -ne $AutoOn) {
+    logMsg "Auto On not set to $AutoOn. Marking as non-compliant"
     $Compliant = $False
 }
 
-If ((Get-BiosAttribute -AttributeName 'Auto On Hour').CurrentSettingDescription -ne 1) {
+If ((Get-BiosAttribute -AttributeName 'Auto On Hour').CurrentSettingDescription -ne $AutoOnHour) {
+    logMsg "Auto On hour not set to $AutoOnHour. Marking as non-compliant"
     $Compliant = $False
 }
 

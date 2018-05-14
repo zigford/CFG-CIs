@@ -464,13 +464,84 @@ function Set-UEFIBootOrder {
     }
 }
 
+$Global:logFile = "$env:WinDir\AppLog\HardwareFirmware-WakeNonSharedDesktops-Compliance.log"
+
+function logMsg {
+    [CmdLetBinding()]
+    Param(
+        [Parameter(
+            ValueFromPipeline=$True
+        )]$Message,$logFile=$Global:logFile
+    )
+    "$(Get-Date): $Message" | Out-File -FilePath $logFile -Append
+}
+
+$DesktopAutoOnHour = 1
+$DesktopAutoOn = 'Select days'
+$DesktopDaysEnable = 'Tuesday','Friday'
+$DesktopDaysDisable = 'Sunday','Monday','Wednesday','Thursday','Saturday'
+
+$LaptopAutoOnHour = 0
+$LaptopAutoOn = 'Disable'
+$LaptopDaysDisable = 'Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
+$LaptopDaysEnable = $null
+
+function Get-HardwareType {
+    Try {
+        $CompSys = Get-CimInstance -ClassName Win32_ComputerSystem -Property PCSystemType | Select-Object -ExpandProperty PCSystemType
+        Switch ($CompSys) {
+            1 {'Desktop'}
+            2 {'Laptop'}
+            3 {'Workstation'}
+            4 {'Enterprise Server'}
+            5 {'SOHO Server'}
+            6 {'Applicance PC'}
+            7 {'Performance Server'}
+            Default {'Unspecified'}
+        }
+    } Catch {
+        throw 'Cant return ciminstance'
+    }
+}
+
+If ((Get-HardwareType) -ne 'Laptop') {
+    logMsg "Setting desktop profile for bios power on"
+    $HWProfile = 'Desktop'
+    $DaysDisable = $DesktopDaysDisable
+    $DaysEnable = $DesktopDaysEnable
+    $AutoOn = $DesktopAutoOn
+    $AutoOnHour = $DesktopAutoOnHour
+} else {
+    $HWProfile = 'Laptop'
+    logMsg "Setting laptop profile for bios power on"
+    $DaysDisable = $DesktopDaysDisable
+    $DaysDisable = $LaptopDaysDisable
+    $DaysEnable = $LaptopDaysEnable
+    $AutoOn = $LaptopAutoOn
+    $AutoOnHour = $LaptopAutoOnHour
+}
+
 #Set bios Auto on X to enable for Tuesday and Friday
-'Tuesday','Friday'| ForEach-Object {
+$DaysEnable | ForEach-Object {
+    logMsg "Setting $_ to Enable"
     Set-BiosAttribute -AttributeName "Auto on $_" -ValueName Enable -BiosPassword $BiosPassword
 }
+$DaysDisable | ForEach-Object {
+    logMsg "Setting $_ to Disable"
+    Set-BiosAttribute -AttributeName "Auto on $_" -ValueName Disable -BiosPassword $BiosPassword
+}
+
 #Set Auto on to Select days
-Set-BiosAttribute -AttributeName 'Auto On' -ValueName 'Select days' -BiosPassword $BiosPassword
+logMsg "Setting AutoOn to $AutoOn"
+Set-BiosAttribute -AttributeName 'Auto On' -ValueName $AutoOn -BiosPassword $BiosPassword
 #Set Auto On Hour to 1am
-Set-BiosAttribute -AttributeName 'Auto On Hour' -ValueName 1 -BiosPassword $BiosPassword
+logMsg "Setting Auto On Hour to $AutoOnHour"
+Set-BiosAttribute -AttributeName 'Auto On Hour' -ValueName $AutoOnHour -BiosPassword $BiosPassword
 #Set Auto On Minute to a random value between 0 and 60
-Set-BiosAttribute -AttributeName 'Auto On Minute' -ValueName (0..59 | Get-Random) -BiosPassword $BiosPassword 
+If ($HWProfile -eq 'Desktop') {
+    logMsg "Setting Auto On Minute to random value betweeon 0 and 59"
+    Set-BiosAttribute -AttributeName 'Auto On Minute' -ValueName (0..59 | Get-Random) -BiosPassword $BiosPassword 
+} else {
+    logMsg "Setting Auto On Minute to 0"
+    Set-BiosAttribute -AttributeName 'Auto On Minute' -ValueName 0 -BiosPassword $BiosPassword 
+}
