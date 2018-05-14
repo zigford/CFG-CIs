@@ -1,0 +1,1 @@
+'O365ProPlusRetail' -in (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration -Name ProductReleaseIds).ProductReleaseIds.split(',')
