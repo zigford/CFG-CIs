@@ -94,6 +94,39 @@ Try {
 } catch {
     logMsg "Failed to save XML" 1
 }
+#19-08-2018 Newer builds of office use different office shortcut names
+#here we will check which type the system has
+logMsg "Testing office shortcut type"  
+$OldIcons = $True
+$NewIcons = $True
+$TestList = 'Word','Outlook','Excel','PowerPoint'
+$IconLoc  = "$env:ALLUSERSPROFILE\Microsoft\Windows\Start Menu\Programs"
+ForEach ($Icon in $TestList) {
+    $NewPath = "$IconLoc\$Icon.lnk"
+    $OldPath = "$IconLoc\$Icon 2016.lnk"
+    If (Test-Path -Path $OldPath) {
+        $NewIcons = $False
+    } ElseIf (Test-Path $NewPath) {
+        $OldIcons = $False
+    }
+}
+If ($OldIcons -and ($NewIcons -eq $False)) {
+    #Nothing to do here as icons are still the old style
+    logMsg "Older 2016 icons"
+} ElseIf ($NewIcons -and ($OldIcons -eq $False)) {
+    logMsg "New icons without 2016. Update XML on the fly"
+    Try {
+        Get-Content -Path $RandomFile.FullName | ForEach-Object {
+            If ($_ -match 'Programs\\(?!OneNote)(\w+\s)+2016') {
+                $_ -replace ' 2016',''
+            } else {
+                $_
+            }
+        } | Out-File $RandomFile.FullName
+    } catch {
+        logMsg "Failed to update xml with new icon names"
+    }
+}
 logMsg "Importing Start-Layout"
 Try {
     Import-StartLayout -LayoutPath $RandomFile.FullName -MountPath "$($env:SystemDrive)\"
