@@ -126,13 +126,14 @@ If ($OldIcons -and ($NewIcons -eq $False)) {
 } ElseIf ($NewIcons -and ($OldIcons -eq $False)) {
     logMsg "New icons without 2016. Update XML on the fly"
     Try {
-        Get-Content -Path $RandomFile.FullName | ForEach-Object {
+        $NewContent = Get-Content -Path $RandomFile.FullName | ForEach-Object {
             If ($_ -match 'Programs\\(?!OneNote)(\w+\s)+2016') {
                 $_ -replace ' 2016',''
             } else {
                 $_
             }
-        } | Out-File $RandomFile.FullName
+        }
+        $NewContent | Out-File $RandomFile.FullName
     } catch {
         logMsg "Failed to update xml with new icon names"
     }
