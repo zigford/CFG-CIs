@@ -99,7 +99,7 @@ Try {
 logMsg "Saving XML to disk"
 Try {
   #$NewXML.Save($RandomFile.FullName)
-  $NewXML | Out-File -FilePath $RandomFile.FullName
+  $NewXML | Out-File -FilePath $RandomFile.FullName -Encoding ascii
   logMsg "Sucesfully saved XML"
 } catch {
   logMsg "Failed to save XML" 1
@@ -133,7 +133,7 @@ If ($OldIcons -and ($NewIcons -eq $False)) {
                 $_
             }
         }
-        $NewContent | Out-File $RandomFile.FullName
+        $NewContent | Out-File $RandomFile.FullName -Encoding ascii
     } catch {
         logMsg "Failed to update xml with new icon names"
     }
