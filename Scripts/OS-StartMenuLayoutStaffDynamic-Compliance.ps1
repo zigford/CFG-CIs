@@ -106,11 +106,11 @@ Try {
         $NewXML = @"
 <?xml version="1.0" encoding="utf-8"?>
 <LayoutModificationTemplate
-	xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
-	xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
-	xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
-	xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
-	Version="1">
+    xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
+    xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
+    xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
+    xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+    Version="1">
   <LayoutOptions StartTileGroupCellWidth="6" />
   <DefaultLayoutOverride LayoutCustomizationRestrictionType="OnlySpecifiedGroups">
     <StartLayoutCollection>
@@ -137,12 +137,12 @@ Try {
       </defaultlayout:StartLayout>
     </StartLayoutCollection>
   </DefaultLayoutOverride>
-<CustomTaskbarLayoutCollection PinListPlacement="Replace">
+  <CustomTaskbarLayoutCollection PinListPlacement="Replace">
   <defaultlayout:TaskbarLayout>
     <taskbar:TaskbarPinList>
-	<taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
-	<taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
-	<taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
+        <taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
+        <taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
+        <taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
     </taskbar:TaskbarPinList>
   </defaultlayout:TaskbarLayout>
 </CustomTaskbarLayoutCollection>
@@ -188,9 +188,9 @@ Try {
   <CustomTaskbarLayoutCollection PinListPlacement="Replace">
   <defaultlayout:TaskbarLayout>
     <taskbar:TaskbarPinList>
-	<taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
-	<taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
-	<taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
+        <taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
+        <taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
+        <taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
     </taskbar:TaskbarPinList>
   </defaultlayout:TaskbarLayout>
 </CustomTaskbarLayoutCollection>
@@ -274,7 +274,7 @@ Try {
     logMsg "Could not remove temp file" 2
 }
 
-If (Compare-Object -ReferenceObject $InstalledXML -DifferenceObject $NewXMLContent) {
+If (Compare-Object -ReferenceObject $InstalledXML.Trim() -DifferenceObject $NewXMLContent.Trim()) {
     # there is a difference
     logMsg "Installed start layout does not match Here-Doc. Returning False"
     return $False
