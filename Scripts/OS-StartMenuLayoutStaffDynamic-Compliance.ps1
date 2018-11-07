@@ -78,9 +78,15 @@ function Get-WinBuildList {
   }
 }
 
-$LayoutStyle = Switch (Get-OSBuild) {
-    {$_ -ge $(Get-WinBuildList -Release 1803).Build} {'DesktopAppID'}
-    Default {'Standard'}
+Switch (Get-OSBuild) {
+    {$_ -ge $(Get-WinBuildList -Release 1803).Build} {
+        logMsg "Win10 release 1803 or higher, using DesktopAppID layout mode"
+        $LayoutStyle = 'DesktopAppID'
+    }
+    Default {
+        logMsg "Win10 release 1709 or lower, using Standard layout mode"
+        $LayoutStyle = 'Standard'
+    }
 }
 
 $InstalledXMLPath = "$($env:Systemdrive)\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
@@ -146,12 +152,13 @@ Try {
     } else {
 #region DesktopAppID layout
         $NewXML =@"
+<?xml version="1.0" encoding="utf-8"?>
 <LayoutModificationTemplate
-	xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
-	xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
-	xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
-	xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
-	Version="1">
+    xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
+    xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
+    xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
+    xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+    Version="1">
   <LayoutOptions StartTileGroupCellWidth="6" />
   <DefaultLayoutOverride>
     <StartLayoutCollection>
@@ -212,7 +219,7 @@ Try {
 logMsg "Saving XML to disk"
 Try {
   #$NewXML.Save($RandomFile.FullName)
-  $NewXML | Out-File -FilePath $RandomFile.FullName
+  $NewXML | Out-File -FilePath $RandomFile.FullName -Encoding utf8
   logMsg "Sucesfully saved XML"
 } catch {
   logMsg "Failed to save XML" 1
@@ -239,39 +246,39 @@ If (($OldIcons -and ($NewIcons -eq $False)) -or $LayoutStyle -eq 'DesktopAppID')
 } ElseIf ($NewIcons -and ($OldIcons -eq $False)) {
     logMsg "New icons without 2016. Update XML on the fly"
     Try {
-        Get-Content -Path $RandomFile.FullName | ForEach-Object {
+        $NewContent = Get-Content -Path $RandomFile.FullName
+        $NewContent | ForEach-Object {
             If ($_ -match 'Programs\\(?!OneNote)(\w+\s)+2016') {
                 $_ -replace ' 2016',''
             } else {
                 $_
             }
-        } | Out-File $RandomFile.FullName
+        } | Out-File $RandomFile.FullName -Encoding utf8
     } catch {
         logMsg "Failed to update xml with new icon names"
     }
 }
 logMsg "Importing XML with Get-Content to get it as an object of strings"
 Try {
-  $NewXMLContent = Get-Content -Path $RandomFile.FullName
-  logMsg "Succesfully read temp file $($RandomFile.FullName)"
-  # Can Delete Temp file now
+    $NewXMLContent = Get-Content -Path $RandomFile.FullName
+    logMsg "Succesfully read temp file $($RandomFile.FullName)"
+    # Can Delete Temp file now
 } catch {
-  logMsg "Failed to read saved XML" 1
+    logMsg "Failed to read saved XML" 1
 }
 
 Try {
-  $RandomFile | Remove-Item -Force
-  logMsg "Succesfully removed temp file $($RandomFile.FullName)"
+    $RandomFile | Remove-Item -Force
+    logMsg "Succesfully removed temp file $($RandomFile.FullName)"
 } catch {
-  logMsg "Could not remove temp file" 2
+    logMsg "Could not remove temp file" 2
 }
 
 If (Compare-Object -ReferenceObject $InstalledXML -DifferenceObject $NewXMLContent) {
-  # there is a difference
-  logMsg "Installed start layout does not match Here-Doc. Returning False"
-  return $False
+    # there is a difference
+    logMsg "Installed start layout does not match Here-Doc. Returning False"
+    return $False
 } else {
-  logMsg "Installed start layout matches Here-Doc. Returning True"
-  return $True
+    logMsg "Installed start layout matches Here-Doc. Returning True"
+    return $True
 }
-
