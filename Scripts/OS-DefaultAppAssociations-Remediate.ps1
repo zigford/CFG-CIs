@@ -209,6 +209,22 @@ $AssociationXML = Switch (Get-OSBuild) {
 
 #endregion
   }
+  {$_ -ge 17763} {
+    logMsg "Detected 1809"
+#region 1809
+@"
+<?xml version="1.0" encoding="UTF-8"?>
+<DefaultAssociations>
+  <Association Identifier=".htm" ProgId="ChromeHTML" ApplicationName="Google Chrome" />
+  <Association Identifier=".html" ProgId="ChromeHTML" ApplicationName="Google Chrome" />
+  <Association Identifier="http" ProgId="ChromeHTML" ApplicationName="Google Chrome" />
+  <Association Identifier="https" ProgId="ChromeHTML" ApplicationName="Google Chrome" />
+  <Association Identifier="mailto" ProgId="Outlook.URL.mailto.15" ApplicationName="Outlook 2016" />
+</DefaultAssociations>
+"@
+
+#endregion
+    }
 }
 
 $NewItemParams = @{
