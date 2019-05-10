@@ -157,19 +157,19 @@ Try {
     xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
     xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout"
     xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"
-    xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+	xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
     Version="1">
   <LayoutOptions StartTileGroupCellWidth="6" />
   <DefaultLayoutOverride>
     <StartLayoutCollection>
       <defaultlayout:StartLayout GroupCellWidth="6">
         <start:Group Name="My Everyday Applications and Data">
-          <start:DesktopApplicationTile Size="2x2" Column="0" Row="2" DesktopApplicationID="Microsoft.Office.WINWORD.EXE.15" />
-          <start:DesktopApplicationTile Size="2x2" Column="4" Row="2" DesktopApplicationID="Microsoft.Office.POWERPNT.EXE.15" />
-          <start:DesktopApplicationTile Size="2x2" Column="0" Row="0" DesktopApplicationID="Microsoft.Office.OUTLOOK.EXE.15" />
-          <start:DesktopApplicationTile Size="2x2" Column="2" Row="2" DesktopApplicationID="Microsoft.Office.EXCEL.EXE.15" />
-          <start:Tile Size="2x2" Column="4" Row="0" AppUserModelID="Microsoft.Office.OneNote_8wekyb3d8bbwe!microsoft.onenoteim" />
           <start:DesktopApplicationTile Size="2x2" Column="2" Row="0" DesktopApplicationID="Microsoft.Office.lync.exe.15" />
+          <start:DesktopApplicationTile Size="2x2" Column="0" Row="2" DesktopApplicationID="Microsoft.Office.WINWORD.EXE.15" />
+          <start:Tile Size="2x2" Column="4" Row="0" AppUserModelID="Microsoft.Office.OneNote_8wekyb3d8bbwe!microsoft.onenoteim" />
+          <start:DesktopApplicationTile Size="2x2" Column="2" Row="2" DesktopApplicationID="Microsoft.Office.EXCEL.EXE.15" />
+          <start:DesktopApplicationTile Size="2x2" Column="0" Row="0" DesktopApplicationID="Microsoft.Office.OUTLOOK.EXE.15" />
+          <start:DesktopApplicationTile Size="2x2" Column="4" Row="2" DesktopApplicationID="Microsoft.Office.POWERPNT.EXE.15" />
         </start:Group>
         <start:Group Name="Windows 10 Apps">
           <start:Tile Size="2x2" Column="4" Row="0" AppUserModelID="microsoft.windowscommunicationsapps_8wekyb3d8bbwe!Microsoft.WindowsLive.Mail" />
@@ -177,20 +177,20 @@ Try {
           <start:Tile Size="4x4" Column="0" Row="0" AppUserModelID="Microsoft.BingWeather_8wekyb3d8bbwe!App" />
         </start:Group>
         <start:Group Name="">
-          <start:DesktopApplicationTile Size="2x2" Column="4" Row="0" DesktopApplicationID="Chrome" />
-          <start:DesktopApplicationTile Size="2x2" Column="0" Row="1" DesktopApplicationID="Microsoft.SoftwareCenter.DesktopToasts" />
           <start:Tile Size="2x2" Column="2" Row="0" AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
+          <start:DesktopApplicationTile Size="2x2" Column="0" Row="0" DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Microsoft System Center\Configuration Manager\Software Center.lnk" />
+          <start:DesktopApplicationTile Size="2x2" Column="4" Row="0" DesktopApplicationID="Chrome" />
           <start:DesktopApplicationTile Size="2x2" Column="0" Row="2" DesktopApplicationID="Microsoft.Windows.Explorer" />
         </start:Group>
       </defaultlayout:StartLayout>
     </StartLayoutCollection>
   </DefaultLayoutOverride>
-  <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+<CustomTaskbarLayoutCollection PinListPlacement="Replace">
   <defaultlayout:TaskbarLayout>
     <taskbar:TaskbarPinList>
-        <taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
-        <taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
-        <taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
+	<taskbar:DesktopApp DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk" />
+	<taskbar:UWA AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
+	<taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\File Explorer.lnk" />
     </taskbar:TaskbarPinList>
   </defaultlayout:TaskbarLayout>
 </CustomTaskbarLayoutCollection>
