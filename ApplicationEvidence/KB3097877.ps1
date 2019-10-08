@@ -1,0 +1,1 @@
+﻿Get-WmiObject -Query 'Select * from Win32_QuickFixEngineering WHERE HotfixID = "KB3097877"'
