@@ -151,6 +151,6 @@ If ((Get-CurrentBootMode) -eq 'UEFI') {
     If (Get-UEFIBootOrder | Where-Object { $_.BiosBootString -ne 'Windows Boot Manager' -and $_.AssignedSequence -ne 0 }) {
         #Boot devices other than 'Windows Boot Manager' are not disabled (AssignedSequence = 0)
         #In the next command, we are setting a new boot order with a single entry of 'Windows Boot Manager' This will effectivly disable other boot devices by assigning them an AssignedSequence of 0
-        Set-UEFIBootOrder -BiosPassword 'f1sh' -BootOrder (New-UEFIBootOrder -Order 'Windows Boot Manager') -SuspendBitlocker
+        Set-UEFIBootOrder -BiosPassword $BiosPassword -BootOrder (New-UEFIBootOrder -Order 'Windows Boot Manager') -SuspendBitlocker
     }
 }
